@@ -1216,6 +1216,18 @@ if get(handles.GPURB,'value')  %使用GPU来计算
     s2_green=sx_green.^2+sy_green.^2;
     APERTURE=ones(green, green);
     
+    if paraflag=='n'
+        disp('Calculating the correction for Peng''s scattering factor')
+        corr_info_matrix=0.*s2_green;%赋初值
+        for i = 1:length(corr_info(:,1))  %把每种的修正势场都算出来，种类很少，所以算与元素个数相当的矩阵就好
+            r2 = s2_green;
+            r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2))=(sin(pi * ((sqrt(r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2)) )-corr_info(i,5))./(corr_info(i,6)-corr_info(i,5))-0.5) )+1)/2;
+            r2(find(r2<corr_info(i,5).^2))=0;
+            r2(find(r2>=corr_info(i,6).^2))=1;
+            corr_info_matrix(:,:,i) = r2.*( corr_info(i,1).*exp(-s2_green.*corr_info(i,3)) + corr_info(i,2).*exp(-s2_green.*corr_info(i,4)));                           
+        end  %gpu,输入这个矩阵更方便一些
+    end
+    
     handles.probe=[];
     APER=[];
     psf_fft=[];
@@ -1364,6 +1376,18 @@ psf_fft=ifftshift(psf_fft);
 paraflag = getparaflag(handles);
 if get(handles.GPURB,'value')  %使用GPU来计算
     %GPU必须是方形
+    if paraflag=='n'
+        disp('Calculating the correction for Peng''s scattering factor')
+        corr_info_matrix=0.*s2_green;%赋初值
+        for i = 1:length(corr_info(:,1))  %把每种的修正势场都算出来，种类很少，所以算与元素个数相当的矩阵就好
+            r2 = s2_green;
+            r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2))=(sin(pi * ((sqrt(r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2)) )-corr_info(i,5))./(corr_info(i,6)-corr_info(i,5))-0.5) )+1)/2;
+            r2(find(r2<corr_info(i,5).^2))=0;
+            r2(find(r2>=corr_info(i,6).^2))=1;
+            corr_info_matrix(:,:,i) = r2.*( corr_info(i,1).*exp(-s2_green.*corr_info(i,3)) + corr_info(i,2).*exp(-s2_green.*corr_info(i,4)));                           
+        end  %gpu,输入这个矩阵更方便一些
+    end
+    
     APERTURE=ones(handles.green_Nrow, handles.green_Ncol);
     
     APER=[];
