@@ -16,11 +16,17 @@ if paraflag =='n' %如果要求计算peng的修正
     disp('Calculating the correction for Peng''s scattering factor')
     corr_info_matrix=0.*s2;%赋初值
     for i = 1:length(corr_info(:,1))  %把每种的修正势场都算出来，种类很少，所以算与元素个数相当的矩阵就好
-        r2 = s2;
-        r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2))=(sin(pi * ((sqrt(r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2)) )-corr_info(i,5))./(corr_info(i,6)-corr_info(i,5))-0.5) )+1)/2;
-        r2(find(r2<corr_info(i,5).^2))=0;
-        r2(find(r2>=corr_info(i,6).^2))=1;
-        corr_info_matrix(:,:,i) = r2.*( corr_info(i,1).*exp(-s2.*corr_info(i,3)) + corr_info(i,2).*exp(-s2.*corr_info(i,4)));                           
+        g2 = 4*s2;
+        corr_info_matrix(:,:,i) =(corr_info(i,11)*(2+corr_info(i,12)*g2)./(1+corr_info(i,12).*g2).^2 + ...
+                                  corr_info(i,13)*(2+corr_info(i,14)*g2)./(1+corr_info(i,14).*g2).^2 + ...
+                                  corr_info(i,15)*(2+corr_info(i,16)*g2)./(1+corr_info(i,16).*g2).^2 + ...
+                                  corr_info(i,17)*(2+corr_info(i,18)*g2)./(1+corr_info(i,18).*g2).^2 + ...
+                                  corr_info(i,19)*(2+corr_info(i,20)*g2)./(1+corr_info(i,20).*g2).^2 ) -...
+                                 (corr_info(i,1).*exp(-s2.*corr_info(i,2)) ...
+                                 + corr_info(i,3).*exp(-s2.*corr_info(i,4)) ...
+                                 + corr_info(i,5).*exp(-s2.*corr_info(i,6)) ...
+                                 + corr_info(i,7).*exp(-s2.*corr_info(i,8)) ...
+                                 + corr_info(i,9).*exp(-s2.*corr_info(i,10)));                           
     end  %gpu,输入这个矩阵更方便一些
     
     beg_corr1(1)=0;
@@ -58,6 +64,7 @@ if paraflag =='n' %如果要求计算peng的修正
    
 end
 %-----------------------------------------------
+
 
 beg1(1)=0;
 if ~isempty(series_n)

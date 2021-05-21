@@ -18,9 +18,12 @@ discon=0.015;  %如果与上下层的距离在discon以内，就分2层，如果是大于这个值，就是1
 %输出待计算的原子的信息矩阵，注意ele_n是doc里面扣掉红色的那些；series表示每层包含多少个原子，
 corr_ele_n=[]; corr_ele_n_i=[]; 
 series_n_corr=[]; series_n_i_corr=[];%每层包含了多少的原子
+%测试
+% load randpos8
+% corr_nuclear_copy(:,2:4)=corr_nuclear_copy(:,2:4)+randpos8*0.7;
 
 if ~isempty(corr_nuclear_copy)
-    [a, b, c] = unique(corr_nuclear_copy(:,7:12),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号
+    [a, b, c] = unique(corr_nuclear_copy(:,7:26),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号
     
     corr_info = a ;  %把元素的信息存这里
     corr_nuclear_copy(:,7)=c;
@@ -69,18 +72,18 @@ end
 
 %这部分没法测试是否正确，关于离子性和原子性都有
 if ~isempty(corr_peng_nuc_ion_copy)
-    [a, b, c] = unique(corr_peng_nuc_ion_copy(:,8:13),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号   
+    [a, b, c] = unique(corr_peng_nuc_ion_copy(:,8:27),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号   
     corr_info = a ;  %把元素的信息存这里  
     kindnum = length(corr_info(:,1)); %总共有多少类
     corr_peng_nuc_ion_copy(:,8)=c;
     
-    [a, b, c] = unique(corr_peng_nuc_ion_copy(:,15:20),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号   
+    [a, b, c] = unique(corr_peng_nuc_ion_copy(:,29:48),'rows');  %返回的a和b，a是不重复的系数；c是归类后的序号   
     %corr_info_n_i = a ;  %把元素的信息存这里 
     corr_info(end+1:end+length(a(:,1)),:) = a+kindnum;  %每个序号数+原本离子性的序号
-    corr_peng_nuc_ion_copy(:,15)=c+kindnum;  %找到对应的离子序号
+    corr_peng_nuc_ion_copy(:,29)=c+kindnum;  %找到对应的离子序号
     
-    corr_peng_nuc_ion_copy(:,16:20)=[];   %把第16列之后的都删掉
-    corr_peng_nuc_ion_copy(:,9:13)=[];   %把第9列之后的都删掉
+    corr_peng_nuc_ion_copy(:,30:end)=[];   %把第16列之后的都删掉
+    corr_peng_nuc_ion_copy(:,9:27)=[];   %把第9列之后的都删掉  只留下原来第28列是离子性比例；和29列赋值的离子序号
     
     for i=1:length(slicethick)
         jj = find(corr_peng_nuc_ion_copy(:,4) >= slicethick(i) & corr_peng_nuc_ion_copy(:,4) < slicethick(i)+eachthick);  %找到厚度满足要求的原子序号
@@ -98,19 +101,19 @@ if ~isempty(corr_peng_nuc_ion_copy)
         jjjj =  find( corr_peng_nuc_ion_copy(:,end) > -discon & corr_peng_nuc_ion_copy(:,end-2) <length(slicethick) );
         
         if ~isempty(jj)
-            corr_ele_n_i(jj,12) = 0.5; %分一半能量             
+            corr_ele_n_i(jj,11) = 0.5; %分一半能量             
             corr_ele_n_i(end+1:end+length(jj),:) = corr_ele_n_i(jj,:); %做拷贝
             corr_ele_n_i(end:-1:end-length(jj)+1,end-2) = corr_ele_n_i(end:-1:end-length(jj)+1,end-2)-1;  %层号减1
         end
         
         if ~isempty(jjjj)
-            corr_ele_n_i(jjjj,12) = 0.5; %分一半能量
+            corr_ele_n_i(jjjj,11) = 0.5; %分一半能量
             corr_ele_n_i(end+1:end+length(jjjj),:) = corr_ele_n_i(jjjj,:); %做拷贝
             corr_ele_n_i(end:-1:end-length(jjjj)+1,end-2) = corr_ele_n_i(end:-1:end-length(jjjj)+1,end-2)+1;  %层号减1
         end
         
     end
-    corr_ele_n_i(:,end-1:end) = [];  %去掉距离上下表面的信息 %就剩下12个元素
+    %corr_ele_n_i(:,end-1:end) = [];  %去掉距离上下表面的信息 %就剩下12个元素
     [a,c] = sort(corr_ele_n_i(:,end)); %根据最后的层信息，重新排序；
     corr_ele_n_i = corr_ele_n_i(c,:);
     
@@ -120,8 +123,8 @@ if ~isempty(corr_peng_nuc_ion_copy)
     end
     
     %这里去掉多余的信息
-    corr_ele_n_i(:,6) = corr_ele_n_i(:,6).*corr_ele_n_i(:,11);
-    corr_ele_n_i(:,[12,11,4,1])=[];
+    corr_ele_n_i(:,6) = corr_ele_n_i(:,6).*corr_ele_n_i(:,11);  %占据率
+    corr_ele_n_i(:,[12,11,4,1])=[];  %上下层的距离，实际高度，质子数
 end
 
    

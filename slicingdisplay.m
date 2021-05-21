@@ -306,7 +306,7 @@ for i=1:length(item_ele)  %元素的种类
       hold on;
 end
 axis(handles.axes1);  %画原子
-set(handles.axes1, 'XLim',[min(handles.x_new(:,2)),max(handles.x_new(:,2))],'YLim',[-max(handles.x_new(:,3)),-min(handles.x_new(:,3))])
+set(handles.axes1, 'XLim',[min(handles.x_new(:,2)),max(handles.x_new(:,2))],'YLim',[-max(handles.x_new(:,3)),-min(handles.x_new(:,3))+0.0001])
 guidata(hObject, handles);
 
 % 

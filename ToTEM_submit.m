@@ -763,7 +763,7 @@ display(strcat( 'Output the wave at the middle slices:', num2str(handles.mid_sli
 paraflag = getparaflag(handles); 
 %set(handles.pushbutton3,'enable','off');
 %if paraflag == 'p'|| paraflag == 'l'  %彭老师公式 20210223
-    [all_nuclear, all_nuc_ion, absorp_n, absorp_n_i, corr_peng_nuc, corr_peng_nuc_ion]=CommonPart_forsimulation_lotabo_peng(hObject, eventdata, handles,paraflag);  %step0-step3移动到这里
+    [all_nuclear, all_nuc_ion, absorp_n, absorp_n_i, corr_peng_nuc, corr_peng_nuc_ion]=CommonPart_forsimulation_lobato_peng(hObject, eventdata, handles,paraflag);  %step0-step3移动到这里
 %elseif paraflag == 'n' %彭老师公式加修正
      %如果是peng的修正，会得到corr相关的两个矩阵。计算思路，是把这两个矩阵计算势场，之后作为原势场的初值
 %end
@@ -872,16 +872,16 @@ for vib = 1 : allvib;  %vibration
         multiceng=str2num(get(handles.edit98, 'string'));
         flag=multiceng;
         if paraflag == 'l'
-            disp('Lotabo parameters cannot be sliced into multiple slices in this program')
+            disp('Lobato parameters cannot be sliced into multiple slices in this program')
             flag=0;
         end
     end
-    %增加两种参数的选择，peng和lotabo的
+    %增加两种参数的选择，peng和lobato的
 %     [ele_n, ele_n_i, absorp_n, absorp_n_i, series_n, series_n_i] = ...
 %              CalAllEquilent20201106(all_nuclear_copy, all_nuc_ion_copy, absorp_n, absorp_n_i, eachthick, slicethick, flag);  
     DBmode=double(get(handles.radiobutton4,'value')|get(handles.radiobutton14,'value'));  %任何一个数是1，就是1
     [ele_n, ele_n_i, absorp_n, absorp_n_i, series_n, series_n_i] = ...
-             CalAllEquilent20210223_lotabo_peng(all_nuclear_copy, all_nuc_ion_copy, absorp_n, absorp_n_i, eachthick, slicethick, flag, paraflag, DBmode);  
+             CalAllEquilent20210223_lobato_peng(all_nuclear_copy, all_nuc_ion_copy, absorp_n, absorp_n_i, eachthick, slicethick, flag, paraflag, DBmode);  
     
     ele_n_corr=[]; ele_n_i_corr=[]; corr_info=[]; series_n_corr=[]; series_n_i_corr=[];
     if paraflag == 'n'
@@ -1258,14 +1258,14 @@ end
 if get(handles.CPURB,'value')  %使用CPU来计算 
     
 %计算每层的势场
-% potential=GetPotential4AllSlice_multicore_lotabo_peng(handles.green_Ncol, handles.green_Nrow,... 
+% potential=GetPotential4AllSlice_multicore_lobato_peng(handles.green_Ncol, handles.green_Nrow,... 
 %     ele_n, absorp_n, ....仅有离子或者原子的弹性和吸收
 %     ele_n_i, absorp_n_i, ... %原子或原子+离子，弹性或者吸收
 %     series_n, series_n_i, ...  %原子排列次序   
 %     s2_green, gx_green, gy_green, ...
 %     sigma, PARAMETER, APERTURE, paraflag);   %为了STEM计算不出错，这里只带入到HRTEM和CBED。
 APERTURE=ones(handles.green_Ncol, handles.green_Nrow);
-potential=GetPotential4AllSlice_multicore_lotabo_peng_corr(handles.green_Ncol, handles.green_Nrow,... 
+potential=GetPotential4AllSlice_multicore_lobato_peng_corr(handles.green_Ncol, handles.green_Nrow,... 
     ele_n, absorp_n, ....仅有离子或者原子的弹性和吸收  %本函数调用修正peng的参数
     ele_n_i, absorp_n_i, ... %原子或原子+离子，弹性或者吸收
     series_n, series_n_i, ...  %原子排列次序   
@@ -1312,6 +1312,9 @@ mywave=ifft2(ifftshift(myfftwave))*handles.green_Nrow*handles.green_Ncol;  %读入
 %----------end 20210119
 
 for k=1:length(potential(1,1,:));
+    if rem(k,10)==0
+        pp=1;
+    end
         mywave =  mywave.*potential(:,:,k);
         mywave=fft2(mywave);   %注意，节省掉一个fftshift
         mywave=mywave.*psf_fft;
@@ -1328,6 +1331,7 @@ fwrite(fid, a, 'float')
 fclose(fid);
 
 mywave=fftshift(fft2(mywave));
+
     
 for nn=1:length(handles.gfsf);
     myinten=myinten+handles.gfsf(nn).*abs(ifft2(ifftshift(mywave.*mytcc(:,:,nn).*myap))).^2;
@@ -1411,14 +1415,14 @@ end
 if get(handles.CPURB,'value')  %使用CPU来计算 
     
 %计算每层的势场
-% potential=GetPotential4AllSlice_multicore_lotabo_peng(handles.green_Ncol, handles.green_Nrow,... 
+% potential=GetPotential4AllSlice_multicore_lobato_peng(handles.green_Ncol, handles.green_Nrow,... 
 %     ele_n, absorp_n, ....仅有离子或者原子的弹性和吸收
 %     ele_n_i, absorp_n_i, ... %原子或原子+离子，弹性或者吸收
 %     series_n, series_n_i, ...  %原子排列次序   
 %     s2_green, gx_green, gy_green, ...
 %     sigma, PARAMETER, APERTURE, paraflag);   %为了STEM计算不出错，这里只带入到HRTEM和CBED。
 APERTURE=ones(handles.green_Ncol, handles.green_Nrow);
-potential=GetPotential4AllSlice_multicore_lotabo_peng_corr(handles.green_Ncol, handles.green_Nrow,... 
+potential=GetPotential4AllSlice_multicore_lobato_peng_corr(handles.green_Ncol, handles.green_Nrow,... 
     ele_n, absorp_n, ....仅有离子或者原子的弹性和吸收  %本函数调用修正peng的参数
     ele_n_i, absorp_n_i, ... %原子或原子+离子，弹性或者吸收
     series_n, series_n_i, ...  %原子排列次序   
@@ -1429,7 +1433,7 @@ potential=GetPotential4AllSlice_multicore_lotabo_peng_corr(handles.green_Ncol, h
 end
 
 %计算每层的势场 %使用多线程计算
-% potential=GetPotential4AllSlice_multicore_lotabo_peng(handles.green_Ncol, handles.green_Nrow,... 
+% potential=GetPotential4AllSlice_multicore_lobato_peng(handles.green_Ncol, handles.green_Nrow,... 
 %     ele_n, absorp_n, ....仅有离子或者原子的弹性和吸收
 %     ele_n_i, absorp_n_i, ... %原子或原子+离子，弹性或者吸收
 %     series_n, series_n_i, ...  %原子排列次序
@@ -1583,13 +1587,27 @@ if get(handles.GPURB, 'value')  %如果使用GPU计算
     if paraflag=='n'
         disp('Calculating the correction for Peng''s scattering factor')
         corr_info_matrix=0.*s2_green;%赋初值
+%         for i = 1:length(corr_info(:,1))  %把每种的修正势场都算出来，种类很少，所以算与元素个数相当的矩阵就好
+%             r2 = s2_green;
+%             r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2))=(sin(pi * ((sqrt(r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2)) )-corr_info(i,5))./(corr_info(i,6)-corr_info(i,5))-0.5) )+1)/2;
+%             r2(find(r2<corr_info(i,5).^2))=0;
+%             r2(find(r2>=corr_info(i,6).^2))=1;
+%             corr_info_matrix(:,:,i) = r2.*( corr_info(i,1).*exp(-s2_green.*corr_info(i,3)) + corr_info(i,2).*exp(-s2_green.*corr_info(i,4)));                           
+%         end  %gpu,输入这个矩阵更方便一些
         for i = 1:length(corr_info(:,1))  %把每种的修正势场都算出来，种类很少，所以算与元素个数相当的矩阵就好
-            r2 = s2_green;
-            r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2))=(sin(pi * ((sqrt(r2(find(r2>=corr_info(i,5).^2 & r2<corr_info(i,6).^2)) )-corr_info(i,5))./(corr_info(i,6)-corr_info(i,5))-0.5) )+1)/2;
-            r2(find(r2<corr_info(i,5).^2))=0;
-            r2(find(r2>=corr_info(i,6).^2))=1;
-            corr_info_matrix(:,:,i) = r2.*( corr_info(i,1).*exp(-s2_green.*corr_info(i,3)) + corr_info(i,2).*exp(-s2_green.*corr_info(i,4)));                           
-        end  %gpu,输入这个矩阵更方便一些
+            s2 = s2_green;
+            g2 = 4*s2;
+            corr_info_matrix(:,:,i) =(corr_info(i,11)*(2+corr_info(i,12)*g2)./(1+corr_info(i,12).*g2).^2 + ...
+                                  corr_info(i,13)*(2+corr_info(i,14)*g2)./(1+corr_info(i,14).*g2).^2 + ...
+                                  corr_info(i,15)*(2+corr_info(i,16)*g2)./(1+corr_info(i,16).*g2).^2 + ...
+                                  corr_info(i,17)*(2+corr_info(i,18)*g2)./(1+corr_info(i,18).*g2).^2 + ...
+                                  corr_info(i,19)*(2+corr_info(i,20)*g2)./(1+corr_info(i,20).*g2).^2 ) -...
+                                 (corr_info(i,1).*exp(-s2.*corr_info(i,2)) ...
+                                 + corr_info(i,3).*exp(-s2.*corr_info(i,4)) ...
+                                 + corr_info(i,5).*exp(-s2.*corr_info(i,6)) ...
+                                 + corr_info(i,7).*exp(-s2.*corr_info(i,8)) ...
+                                 + corr_info(i,9).*exp(-s2.*corr_info(i,10)));                           
+           end  %gpu,输入这个矩阵更方便一些
     end
     %cuda计算，需要输入的变量是 corr_info_matrix; ele_n_corr, ele_n_i_corr;series_n_corr, series_n_i_corr
     tic

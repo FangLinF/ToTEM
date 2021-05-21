@@ -105,3 +105,4 @@ run_cmd = sprintf("%s(%s)",waveCuda,"my_real_w,my_img_w,aper,atom_slice,absorp_n
 % 如果是算势场，myresul 和 mid_ceng_mat 是空值
 [myresul, mid_ceng_mat, potentialx, potentialy] = eval(run_cmd);
 eval(sprintf("%s %s","clear",waveCuda));
+1

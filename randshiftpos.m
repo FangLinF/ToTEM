@@ -1,14 +1,14 @@
 function resul_pos = randshiftpos(ini_pos, eachthick, slicethick, mid_slice_num);
 rng('shuffle');
 resul_pos =  ini_pos;
-randpos=randn(length(ini_pos(:,1)),3).*sqrt(ini_pos(:,5)/8/pi/pi);   %随机坐标的变化量
+randpos=randn(length(ini_pos(:,1)),3).*repmat(sqrt(ini_pos(:,5)/8/pi/pi),1,3);   %随机坐标的变化量
 resul_pos(:,2:4)=randpos+ini_pos(:,2:4);  %变成新的随机坐标，之后使用allnuclear_copy进行计算  %考虑是3个方向的振动，所以三个方向分量需要扣掉sqrt(3)的部分 20210103
 %resul_pos(:,2:3)=randpos(:,1:2)+ini_pos(:,2:3);
 while length( find(resul_pos(:,4)<slicethick(1) | resul_pos(:,4)>=slicethick(end)+eachthick) ) >0  
     %if any atom shift to the boundaries of crystal, its position will be
     %random again
     i = find((resul_pos(:,4)<slicethick(1) | resul_pos(:,4)>=slicethick(end)+eachthick));
-    randpos=randn(length(i),3).*sqrt(ini_pos(i,5)/8/pi/pi);
+    randpos=randn(length(i),3).*repmat(sqrt(ini_pos(i,5)/8/pi/pi),1,3);
     resul_pos(i,2:4)=randpos+ini_pos(i,2:4);
     %resul_pos(i,2:3)=randpos(:,1:2)+ini_pos(i,2:3);
 end
@@ -35,7 +35,7 @@ if ~isempty(mid_slice_num)
             somek  = setdiff(k, kandkk);   %找到那些振动出层的原子的序号,找到补集
             % for example, 14 means that the 14th atoms should be shifted
             
-            randpos=randn(length([somek; somekk]),3).*sqrt(ini_pos([somek; somekk],5)/8/pi/pi);
+            randpos=randn(length([somek; somekk]),3).*repmat(sqrt(ini_pos([somek; somekk],5)/8/pi/pi),1,3);
             resul_pos([somek; somekk],2:4) = randpos+ini_pos([somek; somekk],2:4);
             %resul_pos([somek; somekk],2:3) = randpos(:,1:2)+ini_pos([somek; somekk],2:3);
             kk = find( resul_pos(:,4) < slicethick(mid_slice_num(j)) + eachthick );
